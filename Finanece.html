@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Financial Zodiac</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/dist/phosphor-icons.js"></script>
+<style>
+:root {
+  --bg-deep: #030F1C;
+  --card-bg: rgba(77, 208, 225, 0.05);
+  --text-main: #E0F7FA;
+  --accent-luminous: #4DD0E1;
+  --accent-glow: #00BCD4;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  position: relative;
+  background: radial-gradient(circle at 20% 30%, #0b1f33 0%, #030f1c 100%);
+}
+.summary-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(77, 208, 225, 0.2);
+  box-shadow: 0 0 30px rgba(77, 208, 225, 0.05);
+  transition: all 0.5s ease-out;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+}
+.summary-card.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+.summary-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 40px rgba(77, 208, 225, 0.3);
+}
+.header-focus {
+  color: var(--accent-luminous);
+  text-shadow: 0 0 15px rgba(77, 208, 225, 0.7);
+}
+.section-title {
+  color: var(--accent-luminous);
+  border-bottom: 2px solid rgba(77, 208, 225, 0.4);
+  padding-bottom: 0.5rem;
+}
+.content-list li {
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  font-weight: 300;
+  transition: color 0.3s;
+}
+.content-list li:hover {
+  color: var(--accent-glow);
+}
+.content-list li::before {
+  content: '✦';
+  color: var(--accent-luminous);
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
+.floating-btn {
+  background: linear-gradient(90deg, var(--accent-glow), var(--accent-luminous));
+  color: var(--bg-deep);
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 20px rgba(0, 188, 212, 0.5);
+  transition: all 0.3s ease-in-out;
+  white-space: nowrap;
+}
+.floating-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(0, 188, 212, 0.7);
+}
+.temp-message {
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(77,208,225,0.2);
+}
+</style>
+</head>
+<body>
+<div class="flex flex-col items-center py-10 px-4 md:px-8">
+  <div class="w-full max-w-5xl p-6 md:p-10 rounded-xl bg-white/5 shadow-2xl">
+
+    <!-- Header -->
+    <header class="flex flex-col items-center text-center mb-8 pb-4 border-b border-white/10">
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-wide mb-2 header-focus">The Financial Zodiac</h1>
+      <p class="text-base text-gray-400 font-light italic">Aligning your destiny with the markets.</p>
+    </header>
+
+    <!-- Input Form -->
+    <div id="inputForm" class="flex flex-col items-center">
+      <h2 class="text-xl font-medium text-center mb-6 text-gray-200">ENTER YOUR BIRTH DATE TO READ YOUR DESTINY</h2>
+      <div class="flex flex-col md:flex-row gap-4 mb-8 w-full max-w-lg">
+        <input id="name" type="text" placeholder="Your Name" class="flex-1 w-full p-3 rounded-lg text-lg bg-white/5 border border-white/20 placeholder-gray-400 text-white focus:ring-1 focus:ring-current transition" autocomplete="name">
+        <input id="birth" type="date" class="flex-1 w-full p-3 rounded-lg text-lg bg-white/5 border border-white/20 text-white focus:ring-1 focus:ring-current transition" autocomplete="bday">
+      </div>
+      <button id="reveal" class="floating-btn text-lg md:text-xl px-10 py-3"><i class="ph ph-sparkle-fill mr-2"></i> REVEAL YOUR FINANCIAL ZODIAC</button>
+    </div>
+
+    <!-- Report -->
+    <div id="mainReportContainer" style="display:none;">
+      <h2 id="reportGreeting" class="text-2xl md:text-3xl font-bold text-center mt-6 mb-6 text-white/90">
+        Cosmic Reading for <span id="userNameDisplay" class="header-focus"></span>
+      </h2>
+
+      <div class="summary-card p-5 rounded-xl mb-6 show" id="archetypePanel">
+        <h3 class="text-lg font-bold section-title flex items-center mb-3"><i class="ph ph-comet-fill mr-2 text-xl"></i> Your Financial Archetype</h3>
+        <p class="text-3xl font-extrabold text-center py-4 header-focus" id="archetypeTitle"></p>
+        <p id="zodiacTraits" class="text-base text-gray-300 text-center italic"></p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="mainPanels">
+        <div class="summary-card p-5 rounded-xl" id="careerPanel">
+          <h3 class="text-lg font-bold section-title flex items-center mb-3"><i class="ph ph-briefcase-fill mr-2 text-xl"></i> Best Career Paths in Finance</h3>
+          <ul id="careerList" class="content-list text-sm text-gray-300"></ul>
+        </div>
+        <div class="summary-card p-5 rounded-xl" id="salaryPanel">
+          <h3 class="text-lg font-bold section-title flex items-center mb-3"><i class="ph ph-currency-circle-dollar-fill mr-2 text-xl"></i> Salary & Trajectory Expectation</h3>
+          <ul id="salaryList" class="content-list text-sm text-gray-300"></ul>
+        </div>
+        <div class="summary-card p-5 rounded-xl" id="challengePanel">
+          <h3 class="text-lg font-bold section-title flex items-center mb-3"><i class="ph ph-shield-star-fill mr-2 text-xl"></i> Your Money Challenge</h3>
+          <ul id="challengeList" class="content-list text-sm text-gray-300"></ul>
+        </div>
+      </div>
+
+      <div class="summary-card p-5 rounded-xl mt-6 md:col-span-3 text-center bg-accent-luminous/10 border-accent-luminous/50" id="ctaPanel">
+        <h3 class="text-xl md:text-2xl font-extrabold text-accent-luminous mb-3 flex items-center justify-center"><i class="ph ph-rocket-launch-fill mr-3 text-2xl"></i> Ready to Master Your Money?</h3>
+        <p class="text-base text-gray-200 leading-relaxed mb-4">
+          Learn the full cycle of money—from Barter to Fiat to Bitcoin—and start your wealth journey.
+        </p>
+        <button class="floating-btn text-lg px-8 py-3 w-full md:w-auto" onclick="showMessage('Visit the MoneySense Booth for tools.', 'success');">
+          <i class="ph ph-star-fill mr-2"></i> Visit the MoneySense Booth Now!
+        </button>
+      </div>
+    </div>
+
+    <footer class="mt-12 pt-6 border-t border-white/10 text-xs text-gray-600 flex justify-center">
+      <div>The Financial Zodiac | A MoneySense Initiative</div>
+    </footer>
+  </div>
+</div>
+
+<div id="floatingNav" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3" style="display:none;">
+  <button id="scrollToTop" class="floating-btn text-sm flex items-center"><i class="ph ph-arrow-up-fill mr-2"></i> Scroll Top</button>
+  <button id="resetFloat" class="floating-btn text-sm flex items-center"><i class="ph ph-arrows-counter-clockwise mr-2"></i> Reset Data</button>
+</div>
+
+<script>
+// Financial archetypes mapping
+const financialArchetypes = {
+  1:{title:"Capricorn – The Strategist",icon:"ph-mountain-fill",traits:"Disciplined, systematic, focuses on long-term wealth.","careers":["Financial Analyst","Portfolio Manager","CPA Accountant","Chief Investment Officer"],salary:["$80k–$150k starting, senior $200k+","Performance bonuses","Long-term wealth accumulation"],challenge:["Delegate tasks effectively","Avoid analysis paralysis","Use secure crypto wallets"]},
+  2:{title:"Aquarius – The Innovator",icon:"ph-atom-fill",traits:"Independent, tech-driven, seeks financial freedom.","careers":["Fintech Developer","Blockchain Analyst","Quantitative Researcher","Venture Capital Analyst"],salary:["$100k–$180k starting","High ceiling in tech-finance","Entrepreneurial growth potential"],challenge:["Trade knowledge for networking","Prevent lifestyle creep","Master Layer 1 blockchain"]},
+  3:{title:"Pisces – The Humanitarian",icon:"ph-palette-fill",traits:"Empathetic, purpose-driven, ethical finance oriented.","careers":["ESG Analyst","Microfinance Specialist","Social Impact Investing","Ethical Financial Planner"],salary:["$60k–$120k median","Purpose-driven returns","Work-life balance valued"],challenge:["Ensure fair compensation","Automate budgeting","Use blockchain for transparency"]},
+  4:{title:"Aries – The Initiator",icon:"ph-fire-fill",traits:"Bold, competitive, thrives in fast-paced finance.","careers":["Trader","Investment Banker","Venture Capital Associate","HNW Sales"],salary:["$150k+ entry with bonuses","Performance-tied","Manage burnout risks"],challenge:["Listen before negotiating","Save bonuses","DCA Bitcoin investments"]},
+  5:{title:"Taurus – The Builder",icon:"ph-bank-fill",traits:"Practical, values stable asset growth.","careers":["Real Estate Investment Manager","Bond Trader","Wealth Preservation Specialist","Corporate Treasurer"],salary:["$70k–$140k steady","Fees & asset growth income","Excellent security"],challenge:["Update skills","Invest savings wisely","Long-term crypto holding"]},
+  6:{title:"Gemini – The Communicator",icon:"ph-chat-circle-dots-fill",traits:"Analytical, versatile, connects people.","careers":["Financial PR","Sales & Trading","Consultant","Broker/Dealer"],salary:["$80k–$150k variable","Commissions-based","Requires trust building"],challenge:["Define scope clearly","Track variable income","Explain blockchain simply"]},
+  7:{title:"Cancer – The Protector",icon:"ph-house-fill",traits:"Security-focused, intuitive, risk-averse.","careers":["Compliance Officer","Risk Analyst","Insurance Underwriter","Fraud Investigator"],salary:["$80k–$130k stable","Regulatory attention required","Job security valued"],challenge:["Ask fair compensation","Emergency fund priority","Self-custody Bitcoin"]},
+  8:{title:"Leo – The Leader",icon:"ph-trophy-fill",traits:"Confident, commands teams and portfolios.","careers":["CFO","Hedge Fund Manager","Sales Director","Investor Relations Director"],salary:["$150k–$250k+","Leadership bonuses","Emotional intelligence required"],challenge:["Praise team","Avoid luxury overspending","Educate on crypto"]},
+  9:{title:"Virgo – The Auditor",icon:"ph-scroll-fill",traits:"Detail-oriented, optimization-focused.","careers":["Forensic Accountant","Internal Auditor","Budget Analyst","Process Analyst"],salary:["$90k–$130k specialized","Consulting potential","Efficiency-focused value"],challenge:["Prioritize risks","Zero-based budgeting","Track crypto transactions"]},
+  10:{title:"Libra – The Harmonizer",icon:"ph-scale-fill",traits:"Diplomatic, fair, partnership-focused.","careers":["Corporate Lawyer","Financial Mediator","International Finance Specialist","Compliance Consultant"],salary:["High six-figure potential","Cross-jurisdiction problem solving","Ethical balance"],challenge:["Say no to bad deals","ESG investing","Participate in DAO governance"]},
+  11:{title:"Scorpio – The Transformer",icon:"ph-magic-wand-fill",traits:"Intense, research-driven, uncovers hidden value.","careers":["M&A Analyst","Turnaround Specialist","Distressed Debt Trader","Cybersecurity Risk Manager"],salary:["$130k+ starting","Rapid escalation","High-stakes environment"],challenge:["Empower others","Use tax-advantaged accounts","Prepare for market volatility"]},
+  12:{title:"Sagittarius – The Explorer",icon:"ph-globe-stand-fill",traits:"Optimistic, global-minded, macro-focused.","careers":["Global Market Analyst","Commodity Trader","Economic Forecaster","International Banking Consultant"],salary:["Variable high potential","Travel & remote flexibility","Macro insight-driven"],challenge:["Focus on key skills","Budget for experiences","Research crypto regulation"]}
+};
+
+// Zodiac date mapping
+function getZodiacSign(day, month){
+if((month==1 && day>=20)||(month==2 && day<=18)) return 2;
+if((month==2 && day>=19)||(month==3 && day<=20)) return 3;
+if((month==3 && day>=21)||(month==4 && day<=19)) return 4;
+if((month==4 && day>=20)||(month==5 && day<=20)) return 5;
+if((month==5 && day>=21)||(month==6 && day<=20)) return 6;
+if((month==6 && day>=21)||(month==7 && day<=22)) return 7;
+if((month==7 && day>=23)||(month==8 && day<=22)) return 8;
+if((month==8 && day>=23)||(month==9 && day<=22)) return 9;
+if((month==9 && day>=23)||(month==10 && day<=22)) return 10;
+if((month==10 && day>=23)||(month==11 && day<=21)) return 11;
+if((month==11 && day>=22)||(month==12 && day<=21)) return 12;
+if((month==12 && day>=22)||(month==1 && day<=19)) return 1;
+}
+
+// UI
+function showMessage(msg,type='info'){
+const existing=document.querySelector('.temp-message'); if(existing) existing.remove();
+let bg,text,icon; if(type=='error'){bg='#1E000F';text='#FFDADA';icon='ph-warning-fill';} 
+else if(type=='success'){bg='#0F1E00';text='#DAFFDA';icon='ph-check-circle-fill';} 
+else{bg='#000E1E';text='#DADEFF';icon='ph-info-fill';}
+const box=document.createElement('div');box.className='temp-message fixed top-4 right-4 p-4 rounded-lg shadow-xl z-50 font-medium transition duration-500 opacity-0 transform translate-x-10 flex items-center'; box.style.backgroundColor=bg; box.style.color=text;
+box.innerHTML=`<i class="ph ${icon} mr-2 text-xl"></i> ${msg}`; document.body.appendChild(box);
+setTimeout(()=>{box.classList.remove('opacity-0','translate-x-10');box.classList.add('opacity-100','translate-x-0');},10);
+setTimeout(()=>{box.classList.remove('opacity-100','translate-x-0');box.classList.add('opacity-0','translate-x-10');},4000);
+setTimeout(()=>box.remove(),4500);
+}
+
+function generateList(el,arr){el.innerHTML='';arr.forEach(item=>{const li=document.createElement('li');li.innerHTML=item;el.appendChild(li);});}
+
+const state={name:'',birth:'',isReady:false};
+const el={reveal:document.getElementById('reveal'),resetFloat:document.getElementById('resetFloat'),scrollToTop:document.getElementById('scrollToTop'),
+name:document.getElementById('name'),birth:document.getElementById('birth'),mainReportContainer:document.getElementById('mainReportContainer'),
+userNameDisplay:document.getElementById('userNameDisplay'),archetypeTitle:document.getElementById('archetypeTitle'),zodiacTraits:document.getElementById('zodiacTraits'),
+careerList:document.getElementById('careerList'),salaryList:document.getElementById('salaryList'),challengeList:document.getElementById('challengeList'),
+inputForm:document.getElementById('inputForm'),floatingNav:document.getElementById('floatingNav')};
+
+function generateReading(){
+state.name=el.name.value.trim().split(' ')[0]; state.birth=el.birth.value;
+if(!state.name||!state.birth){showMessage("Name and birth date required",'error'); return;}
+const b=new Date(state.birth); const day=b.getDate(); const month=b.getMonth()+1; const zodiac=getZodiacSign(day,month);
+const data=financialArchetypes[zodiac];
+el.userNameDisplay.textContent=state.name;
+el.archetypeTitle.innerHTML=`<i class="ph ${data.icon} mr-2"></i> ${data.title}`;
+el.zodiacTraits.innerHTML="<strong>Your Horoscope:</strong> "+data.traits;
+generateList(el.careerList,data.careers);
+generateList(el.salaryList,data.salary);
+generateList(el.challengeList,data.challenge);
+showMainPanels();
+showMessage(`Cosmic Ledger Unlocked! Welcome, ${state.name}.`,'success');
+}
+
+function showMainPanels(){
+el.mainReportContainer.style.display='block';
+el.floatingNav.style.display='flex';
+el.inputForm.style.display='none';
+const cards=el.mainReportContainer.querySelectorAll('.summary-card');
+cards.forEach((p,i)=>{p.classList.remove('show');setTimeout(()=>{p.classList.add('show');},i*150);});
+state.isReady=true;
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetApp(){
+el.name.value=''; el.birth.value=''; state.isReady=false;
+el.mainReportContainer.style.display='none'; el.inputForm.style.display='flex'; el.floatingNav.style.display='none';
+showMessage("System Reset. Input new date for reading.",'info');
+el.mainReportContainer.querySelectorAll('.summary-card').forEach(p=>p.classList.remove('show'));
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{el.name.focus();});
+el.reveal.addEventListener('click',generateReading);
+el.resetFloat.addEventListener('click',resetApp);
+el.scrollToTop.addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});});
+</script>
+</body>
+</html>
+
